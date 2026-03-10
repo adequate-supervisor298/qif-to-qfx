@@ -16,8 +16,8 @@ Usage:
 Options:
     --no-balance    Skip auto-balancing (use if source already balances to zero)
     --org NAME      Set the institution name in the QFX header (default: Import)
-    --acctid ID     Set the account identifier (default: Import). Use a unique
-                    value per source to prevent Quicken from mixing accounts.
+    --acctid ID     Set the account identifier. Defaults to "{org} - Import"
+                    when --org is set, otherwise "Import".
 
 If output is omitted, writes to input-clean.qfx in the same directory.
 """
@@ -25,6 +25,7 @@ If output is omitted, writes to input-clean.qfx in the same directory.
 import sys
 import os
 import hashlib
+import re
 import tempfile
 import zipfile
 from datetime import datetime
@@ -49,7 +50,12 @@ def parse_qif(filepath):
         content = f.read()
     content = ensure_account_header(content)
 
-    blocks = content.split("^\n")
+    # Split on ^ (standard) or blank lines (Chase-style)
+    after_header = content.split("!Type:", 1)[-1] if "!Type:" in content else content
+    if "^\n" in after_header or after_header.rstrip().endswith("^"):
+        blocks = content.split("^\n")
+    else:
+        blocks = re.split(r"\n\n+", content)
     txns = []
 
     for block in blocks:
@@ -206,7 +212,7 @@ def write_qfx(txns, filepath, account_id="Import", org="Import"):
 <DTPOSTED>{ofx_date}
 <TRNAMT>{t['amount']:.2f}
 <FITID>{fitid}
-<n>{payee[:32]}"""
+<NAME>{payee[:32]}"""
         if memo:
             trn += f"\n<MEMO>{memo[:255]}"
         trn += "\n</STMTTRN>"
@@ -270,11 +276,114 @@ NEWFILEUID:NONE
         f.write(qfx)
 
 
+# ── Interactive Mode ─────────────────────────────────────────────────────────
+
+def scan_downloads(directory=None):
+    """Scan a directory for .qif and .zip files, return sorted list of paths."""
+    if directory is None:
+        directory = os.path.expanduser("~/Downloads")
+    if not os.path.isdir(directory):
+        return []
+    results = []
+    for name in os.listdir(directory):
+        if name.lower().endswith((".qif", ".zip")):
+            results.append(os.path.join(directory, name))
+    return sorted(results, key=lambda p: os.path.getmtime(p), reverse=True)
+
+
+def interactive_mode(scan_dir=None, input_fn=None):
+    """Interactive file selection and conversion. Returns config dict or None."""
+    if input_fn is None:
+        input_fn = input
+
+    files = scan_downloads(scan_dir)
+    if not files:
+        print("No .qif or .zip files found in ~/Downloads.")
+        return None
+
+    print("\nFound files:")
+    for i, f in enumerate(files, 1):
+        size = os.path.getsize(f)
+        name = os.path.basename(f)
+        print(f"  {i}. {name} ({size:,} bytes)")
+
+    selection = input_fn("\nSelect files (comma-separated numbers, or 'all'): ").strip()
+    if selection.lower() == "all":
+        chosen = files
+    else:
+        indices = [int(x.strip()) - 1 for x in selection.split(",") if x.strip().isdigit()]
+        chosen = [files[i] for i in indices if 0 <= i < len(files)]
+
+    if not chosen:
+        print("No files selected.")
+        return None
+
+    print("\nSource type:")
+    print("  1. PayPal (auto-balance enabled)")
+    print("  2. Bank (no balancing)")
+    print("  3. Other (no balancing)")
+    source = input_fn("\nSelect source [1/2/3]: ").strip()
+
+    source_map = {"1": ("PayPal", False), "2": ("Bank", True), "3": ("Import", True)}
+    org, no_balance = source_map.get(source, ("Import", True))
+
+    if len(chosen) == 1:
+        base = os.path.splitext(chosen[0])[0]
+        output_path = base + "-clean.qfx"
+    else:
+        directory = os.path.dirname(chosen[0])
+        output_path = os.path.join(directory, f"{org}-combined.qfx")
+
+    parts = ["qif-to-qfx"]
+    for f in chosen:
+        parts.append(f'"{f}"' if " " in f else f)
+    if len(chosen) > 1:
+        parts.extend(["-o", f'"{output_path}"' if " " in output_path else output_path])
+    parts.extend(["--org", org])
+    if no_balance:
+        parts.append("--no-balance")
+
+    print(f"\nCommand:\n  {' '.join(parts)}")
+    print(f"Output:  {output_path}")
+
+    confirm = input_fn("\nProceed? [Y/n]: ").strip().lower()
+    if confirm and confirm != "y":
+        print("Cancelled.")
+        return None
+
+    return {
+        "input_paths": chosen,
+        "output_path": output_path,
+        "org": org,
+        "no_balance": no_balance,
+    }
+
+
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 def main():
     # Parse args (simple, no argparse dependency)
     args = sys.argv[1:]
+
+    # Hidden test flag for interactive scan directory
+    scan_dir = None
+    if "--interactive-scan-dir" in args:
+        idx = args.index("--interactive-scan-dir")
+        scan_dir = args[idx + 1]
+        args = args[:idx] + args[idx + 2:]
+
+    # No args (or only --interactive-scan-dir): interactive mode
+    if len(args) < 1:
+        config = interactive_mode(scan_dir=scan_dir)
+        if config is None:
+            sys.exit(0)
+        args = config["input_paths"][:]
+        if config["no_balance"]:
+            args.append("--no-balance")
+        args.extend(["--org", config["org"]])
+        if len(config["input_paths"]) > 1:
+            args.extend(["-o", config["output_path"]])
+
     no_balance = "--no-balance" in args
     if no_balance:
         args.remove("--no-balance")
@@ -285,11 +394,13 @@ def main():
         org = args[idx + 1]
         args = args[:idx] + args[idx + 2:]
 
-    acctid = "Import"
+    acctid = None
     if "--acctid" in args:
         idx = args.index("--acctid")
         acctid = args[idx + 1]
         args = args[:idx] + args[idx + 2:]
+    if acctid is None:
+        acctid = org
 
     output_path = None
     if "-o" in args:
@@ -298,7 +409,8 @@ def main():
         args = args[:idx] + args[idx + 2:]
 
     if len(args) < 1:
-        print("Usage: python3 qif_to_qfx.py input1.qif [input2.qif ...] [-o output.qfx] [--no-balance] [--org NAME] [--acctid ID]")
+        print("Usage: qif-to-qfx input1.qif [input2.qif ...] [-o output.qfx] [--no-balance] [--org NAME] [--acctid ID]")
+        print("\nRun with no arguments for interactive mode.")
         sys.exit(1)
 
     input_paths = args

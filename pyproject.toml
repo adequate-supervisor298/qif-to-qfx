@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qif-to-qfx"
+version = "0.1.0"
+description = "Convert QIF files to QFX/OFX format for Quicken import"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.6"
+authors = [
+    { name = "Manish Mukherjee", email = "manish@mukherjee.me" },
+]
+keywords = ["qif", "qfx", "ofx", "quicken", "finance", "converter"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Office/Business :: Financial",
+]
+
+[project.scripts]
+qif-to-qfx = "qif_to_qfx:main"
+
+[project.urls]
+Homepage = "https://github.com/manishie/qif-to-qfx"
+Repository = "https://github.com/manishie/qif-to-qfx"

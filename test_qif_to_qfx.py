@@ -111,6 +111,25 @@ class TestCliMultiFile:
             # Should have 2 unique transactions (Netflix deduped)
             assert content.count("<STMTTRN>") == 2
 
+    def test_qfx_uses_NAME_tag_for_payee(self):
+        """QFX output must use <NAME> tag for payee — standard OFX tag."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file1 = write_qif(tmpdir, "a.qif", [
+                ("03/01/2025", -10.00, "Netflix"),
+            ])
+            output = os.path.join(tmpdir, "out.qfx")
+            sys.argv = ["qif_to_qfx.py", file1, "-o", output, "--no-balance"]
+
+            from qif_to_qfx import main
+            main()
+
+            with open(output) as f:
+                content = f.read()
+            # OFX SGML standard uses <NAME> for payee inside STMTTRN.
+            # Previous <n> workaround was due to duplicate import confusion, not a real bug.
+            assert "<NAME>Netflix" in content
+            assert "<n>Netflix" not in content
+
     def test_cli_date_range_sorts_chronologically(self, capsys):
         """Date range display should sort by actual date, not string order."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -127,6 +146,38 @@ class TestCliMultiFile:
             captured = capsys.readouterr()
             assert "12/31/2024" in captured.out.split("Date range:")[1].split("–")[0]
             assert "01/03/2026" in captured.out.split("Date range:")[1].split("\n")[0]
+
+    def test_cli_default_acctid_uses_org_name(self):
+        """When --org is set but --acctid is not, ACCTID should match the org name."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file1 = write_qif(tmpdir, "a.qif", [
+                ("03/01/2025", -10.00, "Netflix"),
+            ])
+            output = os.path.join(tmpdir, "out.qfx")
+            sys.argv = ["qif_to_qfx.py", file1, "-o", output, "--no-balance", "--org", "PayPal"]
+
+            from qif_to_qfx import main
+            main()
+
+            with open(output) as f:
+                content = f.read()
+            assert "<ACCTID>PayPal\n" in content
+
+    def test_cli_explicit_acctid_overrides_default(self):
+        """When --acctid is explicitly set, it should be used as-is."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file1 = write_qif(tmpdir, "a.qif", [
+                ("03/01/2025", -10.00, "Netflix"),
+            ])
+            output = os.path.join(tmpdir, "out.qfx")
+            sys.argv = ["qif_to_qfx.py", file1, "-o", output, "--no-balance", "--org", "PayPal", "--acctid", "MyCustomID"]
+
+            from qif_to_qfx import main
+            main()
+
+            with open(output) as f:
+                content = f.read()
+            assert "<ACCTID>MyCustomID" in content
 
     def test_cli_with_zip_input(self):
         """CLI should accept a .zip file containing QIF files."""

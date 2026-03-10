@@ -1,0 +1,20 @@
+!Account
+NChecking
+TBank
+^
+!Type:Bank
+D01/15/2025
+T-42.50
+PGrocery Store
+LFood
+^
+D01/20/2025
+T-9.99
+PNetflix
+LEntertainment
+^
+D01/25/2025
+T1500.00
+PPayroll Deposit
+LIncome
+^

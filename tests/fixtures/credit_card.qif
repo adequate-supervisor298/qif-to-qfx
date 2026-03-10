@@ -1,0 +1,20 @@
+!Account
+NVisa
+TCCard
+^
+!Type:CCard
+D02/01/2025
+T-25.00
+PRestaurant
+LDining
+^
+D02/05/2025
+T-100.00
+PAmazon
+LShopping
+^
+D02/10/2025
+T125.00
+PPayment - Thank You
+LCredit Card Payment
+^

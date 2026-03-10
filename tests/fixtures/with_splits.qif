@@ -1,0 +1,21 @@
+!Account
+NPayPal
+TCash
+^
+!Type:Bank
+D04/01/2025
+T-50.00
+POnline Purchase
+SGoods
+$-50.00
+SFee
+$0.00
+^
+D04/05/2025
+T-30.00
+PSubscription Service
+SService
+$-30.00
+SFee
+$0.00
+^

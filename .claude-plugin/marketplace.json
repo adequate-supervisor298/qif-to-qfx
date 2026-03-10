@@ -1,0 +1,7 @@
+{
+  "name": "qif-to-qfx",
+  "source": "./",
+  "description": "Convert QIF files to QFX format for Quicken Mac import. Handles PayPal double-entry balancing, split stripping, and multi-file dedup.",
+  "strict": false,
+  "skills": ["./"]
+}

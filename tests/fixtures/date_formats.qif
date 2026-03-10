@@ -1,0 +1,17 @@
+!Account
+NTest
+TBank
+^
+!Type:Bank
+D01/05/2025
+T-10.00
+PFour-digit year
+^
+D02/15/25
+T-20.00
+PTwo-digit year
+^
+D12/31/2024
+T-30.00
+PYear boundary
+^
