@@ -77,6 +77,20 @@ def parse_qif(filepath):
     return txns
 
 
+# ── Deduplication ────────────────────────────────────────────────────────────
+
+def deduplicate_transactions(txns):
+    """Remove duplicate transactions based on date + amount + payee."""
+    seen = set()
+    result = []
+    for t in txns:
+        key = (t["date"], t["amount"], t.get("payee", ""))
+        if key not in seen:
+            seen.add(key)
+            result.append(t)
+    return result
+
+
 # ── Balancing ────────────────────────────────────────────────────────────────
 
 def balance_transactions(txns):
