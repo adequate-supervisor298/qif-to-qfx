@@ -25,6 +25,8 @@ If output is omitted, writes to input-clean.qfx in the same directory.
 import sys
 import os
 import hashlib
+import tempfile
+import zipfile
 from datetime import datetime
 
 
@@ -75,6 +77,22 @@ def parse_qif(filepath):
             txns.append(t)
 
     return txns
+
+
+def parse_qif_files(filepaths):
+    """Parse multiple QIF/ZIP files and return deduplicated transactions."""
+    all_txns = []
+    for path in filepaths:
+        if path.lower().endswith(".zip"):
+            with tempfile.TemporaryDirectory() as tmpdir:
+                with zipfile.ZipFile(path) as zf:
+                    for name in zf.namelist():
+                        if name.lower().endswith(".qif"):
+                            zf.extract(name, tmpdir)
+                            all_txns.extend(parse_qif(os.path.join(tmpdir, name)))
+        else:
+            all_txns.extend(parse_qif(path))
+    return deduplicate_transactions(all_txns)
 
 
 # ── Deduplication ────────────────────────────────────────────────────────────
@@ -273,22 +291,36 @@ def main():
         acctid = args[idx + 1]
         args = args[:idx] + args[idx + 2:]
 
+    output_path = None
+    if "-o" in args:
+        idx = args.index("-o")
+        output_path = args[idx + 1]
+        args = args[:idx] + args[idx + 2:]
+
     if len(args) < 1:
-        print("Usage: python3 qif_to_qfx.py input.qif [output.qfx] [--no-balance] [--org NAME] [--acctid ID]")
+        print("Usage: python3 qif_to_qfx.py input1.qif [input2.qif ...] [-o output.qfx] [--no-balance] [--org NAME] [--acctid ID]")
         sys.exit(1)
 
-    input_path = args[0]
-    if len(args) >= 2:
-        output_path = args[1]
-    else:
-        base = os.path.splitext(input_path)[0]
+    input_paths = args
+
+    if len(input_paths) == 1 and output_path is None:
+        # Single file: legacy behavior
+        base = os.path.splitext(input_paths[0])[0]
         output_path = base + "-clean.qfx"
+    elif len(input_paths) == 2 and output_path is None:
+        # Two positional args: legacy behavior (input output)
+        output_path = input_paths.pop()
 
-    print(f"Reading: {input_path}")
-    txns = parse_qif(input_path)
-    print(f"  Parsed: {len(txns)} transactions (splits stripped)")
+    if output_path is None:
+        print("Error: -o output.qfx is required when using multiple input files")
+        sys.exit(1)
 
-    dates = sorted(t["date"] for t in txns)
+    for p in input_paths:
+        print(f"Reading: {p}")
+    txns = parse_qif_files(input_paths)
+    print(f"  Parsed: {len(txns)} transactions (deduplicated)")
+
+    dates = sorted((t["date"] for t in txns), key=date_to_ofx)
     print(f"  Date range: {dates[0]} – {dates[-1]}")
 
     debits = sum(t["amount"] for t in txns if t["amount"] < 0)
