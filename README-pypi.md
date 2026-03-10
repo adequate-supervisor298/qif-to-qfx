@@ -2,24 +2,7 @@
 
 Convert QIF transaction files to QFX (Web Connect) format for import into Quicken and other financial software that supports OFX.
 
-## Claude Code Skill
-
-Install as a [Claude Code](https://claude.ai/download) skill. Inside a Claude Code session, run:
-
-```
-/plugin marketplace add manishie/qif-to-qfx
-/plugin install qif-to-qfx
-```
-
-Then just ask Claude:
-
-> *"Convert my PayPal QIF download to QFX for Quicken."*
-
-Claude will find your QIF files, ask which source they're from, build the right command, and show you how to import the result into Quicken.
-
-## CLI Installation
-
-Also available as a standalone command-line tool:
+## Install
 
 ```bash
 pip install qif-to-qfx
@@ -67,6 +50,10 @@ If `-o` is omitted with a single input, writes to `<input>-clean.qfx`.
 2. Change Action to **"Link to existing account"**
 3. Select the target account
 4. Accept All
+
+## Claude Code Skill
+
+Also available as a [Claude Code](https://claude.ai/download) skill — see [GitHub](https://github.com/manishie/qif-to-qfx) for install instructions.
 
 ## Tested With
 
