@@ -1,7 +1,0 @@
-{
-  "name": "qif-to-qfx",
-  "source": "./",
-  "description": "Convert QIF files to QFX format for Quicken import. Handles PayPal balancing, split stripping, deduplication, and multi-file combine.",
-  "strict": false,
-  "skills": ["./"]
-}

